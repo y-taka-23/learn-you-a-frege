@@ -1,0 +1,27 @@
+module learnyou.chapter02.BabysFirstFunctions where
+
+doubleMe x = x + x
+
+--doubleUs x y = x * 2 + y * 2
+doubleUs x y = doubleMe x + doubleMe y
+
+doubleSmallNumber :: Num a => a -> a
+doubleSmallNumber x =
+    if x > 100
+        then x
+        else x * 2
+
+doubleSmallNumber' :: Num a => a -> a
+doubleSmallNumber' x = (if x > 100 then x else x * 2) + 1
+
+--conanO'Brien = "It's a-me, Conan O'Brien!" --> error
+conanOBrien = "It's a-me, Conan O'Brien!"
+
+main _ = do
+
+    println $ doubleMe 9
+    println $ doubleMe 8.3
+
+    println $ doubleUs 4 9
+    println $ doubleUs 2.3 34.2
+    println $ doubleUs 28 88 + doubleMe 123
