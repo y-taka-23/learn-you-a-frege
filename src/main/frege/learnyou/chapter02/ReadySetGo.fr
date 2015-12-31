@@ -1,0 +1,34 @@
+module learnyou.chapter02.ReadySetGo where
+
+main _ = do
+
+    println $ 2 + 15
+    println $ 49 * 100
+    println $ 1892 - 1472
+    println $ 5 / 2
+
+    println $ (50 * 100) - 4999
+    println $ 50 * 100 - 4999
+    println $ 50 * (100 - 4999)
+    println $ 5 * -3
+
+    println $ true && false
+    println $ true && true
+    println $ false || true
+    println $ not false
+    println $ not (true && true)
+
+    println $ 5 == 5
+    println $ 1 == 0
+    println $ 5 != 5
+    println $ 5 != 4
+    println $ "hello" == "hello"
+
+    println $ succ 8
+    println $ min 9 10
+    println $ min 3.4 3.2
+    println $ max 100 101
+
+    println $ succ 9 + max 5 4 + 1
+    println $ (succ 9) + (max 5 4) + 1
+    println $ 92 `div` 10
