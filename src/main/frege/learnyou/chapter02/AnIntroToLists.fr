@@ -14,10 +14,10 @@ main _ = do
 
     println $ [ 1, 2, 3, 4 ] ++ [ 9, 10, 11, 12 ]
     println $ "hello" ++ " " ++ "world"
-    println $ show $ [ 'w', 'o' ] ++ [ 'o', 't' ]
+    println $ packed $ [ 'w', 'o' ] ++ [ 'o', 't' ]
 
     println $ "A" ++ " SMALL CAT"
-    println $ show $ 'A' : toList " SMALL CAT"
+    println $ packed $ 'A' : toList " SMALL CAT"
     println $ 5 : [ 1, 2, 3, 4, 5 ]
 
     println $ (toList "Steve Buscemi") !! 6
