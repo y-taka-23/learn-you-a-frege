@@ -1,0 +1,17 @@
+plugins {
+    id "org.frege-lang" version "0.5"
+}
+
+apply plugin: "org.frege-lang"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.frege-lang:frege:3.23.422-ga05a487"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.1"
+}
