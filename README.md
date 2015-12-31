@@ -1,5 +1,7 @@
 # Learn You a Frege for Great Good!
 
+[![Build Status](https://travis-ci.org/y-taka-23/learn-you-a-frege.svg?branch=master)](https://travis-ci.org/y-taka-23/learn-you-a-frege)
+
 ## Description
 
 [Frege](https://github.com/Frege/frege) implementation of examples in the book ["Learn You a Haskell for Great Good!"](http://learnyouahaskell.com/).  See also [LYAH adaptions for Frege](https://github.com/Frege/frege/wiki/LYAH-adaptions-for-Frege) in the official wiki.
