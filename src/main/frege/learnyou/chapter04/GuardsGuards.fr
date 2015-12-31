@@ -20,3 +20,4 @@ a `myCompare` b
 
 main _ = do
     println $ bmiTell 85 1.90
+    println $ 3 `myCompare` 2
