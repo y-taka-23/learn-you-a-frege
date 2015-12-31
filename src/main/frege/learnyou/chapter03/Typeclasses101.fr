@@ -1,0 +1,38 @@
+module learnyou.chapter03.Typeclasses101 where
+
+main _ = do
+
+    println $ 5 == 5
+    println $ 5 != 5
+    println $ 'a' == 'a'
+    println $ "Ho Ho" == "Ho Ho"
+    println $ 3.432 == 3.432
+
+    println $ "Abrakadabra" < "Zebra"
+    println $ "Abrakadabra" `compare` "Zebra"
+    println $ 5 >= 2
+    println $ 5 `compare` 3
+
+    println $ show 3
+    println $ show 5.334
+    println $ show True
+
+    println $ atoi "5"
+
+    println $ ['a'..'e']
+    println $ [Lt .. Gt]
+    println $ [3 .. 5]
+    println $ succ 'B'
+
+    println $ (minBound :: Int)
+    println $ show (maxBound :: Char)
+    println $ (maxBound :: Bool)
+    println $ (minBound :: Bool)
+    println $ (maxBound :: (Bool, Int, Char))
+
+    println $ (20 :: Int)
+    println $ (20 :: Integer)
+    println $ (20 :: Float)
+    println $ (20 :: Double)
+
+    println $ fromIntegral (length [ 1, 2, 3, 4 ]) + 3.2
