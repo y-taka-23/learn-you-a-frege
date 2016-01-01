@@ -1,0 +1,24 @@
+module learnyou.chapter06.CurriedFunctions where
+
+multThree :: (Num a) => a -> a -> a -> a
+multThree x y z = x * y * z
+
+multTwoWithNine = multThree 9
+multWithEighteen = multTwoWithNine 2
+
+compareWithHundred :: (Num a) => a -> Ordering
+compareWithHundred = compare 100
+
+divideByTen :: (Real a) => a -> a
+divideByTen = (/ 10)
+
+isUpperAlphanum :: Char -> Bool
+isUpperAlphanum = (`elem` ['A'..'Z'])
+
+main _ = do
+
+    println $ max 4 5
+    println $ (max 4) 5
+
+    println $ multTwoWithNine 2 3
+    println $ multWithEighteen 10
