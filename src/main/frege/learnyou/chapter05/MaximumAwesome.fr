@@ -1,0 +1,14 @@
+module learnyou.chapter05.MaximumAwesome where
+
+maximum1 :: (Ord a) => [a] -> a
+maximum1 [] = error "maximum of empty list"
+maximum1 [x] = x
+maximum1 (x : xs)
+    | x > maxTail = x
+    | otherwise = maxTail
+    where maxTail = maximum1 xs
+
+maximum2 :: (Ord a) => [a] -> a
+maximum2 [] = error "maximum of empty list"
+maximum2 [x] = x
+maximum2 (x : xs) = max x (maximum2 xs)
