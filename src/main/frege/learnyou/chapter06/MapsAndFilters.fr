@@ -1,0 +1,65 @@
+module learnyou.chapter06.MapsAndFilters where
+
+import frege.data.List
+
+myMap :: (a -> b) -> [a] -> [b]
+myMap _ [] = []
+myMap f (x : xs) = f x : myMap f xs
+
+myFilter :: (a -> Bool) -> [a] -> [a]
+myFilter _ [] = []
+myFilter p (x : xs)
+    | p x       = x : myFilter p xs
+    | otherwise = myFilter p xs
+
+notNull :: [a] -> Bool
+notNull x = not (null x)
+
+quicksort :: (Ord a) => [a] -> [a]
+quicksort [] = []
+quicksort (x:xs) =
+    let smallerSorted = quicksort (filter (<= x) xs)
+        biggerSorted = quicksort (filter (> x) xs)
+    in  smallerSorted ++ [x] ++ biggerSorted
+
+largestDivisible :: (Enum a, Integral a) => a
+largestDivisible = head (filter p (iterate pred 10000))
+    where p x = x `mod` 3829 == 0
+
+chain :: (Integral a) => a -> [a]
+chain 1 = [1]
+chain n
+    | even n     =  n : chain (n `div` 2)
+    | otherwise  =  n : chain (n * 3 + 1)
+
+numLongChains :: Int
+numLongChains = length (filter isLong (map chain [1..100]))
+    where isLong xs = length xs > 15
+
+listOfFuns = map (*) [0..]
+
+main _ = do
+
+    println $ map (+ 3) [ 1, 5, 3, 1, 6 ]
+    println $ map (++ "!") [ "BIFF", "BANG", "POW" ]
+    println $ map (replicate 3) [ 3 .. 6 ]
+    println $ map (map (^ 2)) [ [ 1, 2 ], [ 3, 4, 5, 6 ], [ 7, 8 ] ]
+    println $ map fst [ (1, 2), (3, 5), (6, 3), (2, 6), (2, 5) ]
+
+    println $ filter (> 3) [ 1, 5, 3, 2, 1, 6, 4, 3, 2, 1 ]
+    println $ filter (== 3) [ 1, 2, 3, 4, 5 ]
+    println $ filter even [1 .. 10]
+    println $ filter notNull [ [1,2,3], [], [3,4,5], [2,2], [], [], [] ]
+    println $ filter (`elem` ['a'..'z'])
+                     "u LaUgH aT mE BeCaUsE I aM diFfeRent".toList
+    println $ filter (`elem` ['A'..'Z'])
+                     "i lauGh At You BecAuse u r aLL the Same".toList
+
+    println $ sum (takeWhile (< 10000) (filter odd (map (^ 2) [1..])))
+    println $ sum (takeWhile (< 10000) [ n ^ 2 | n <- [1..], odd (n ^ 2) ])
+
+    println $ chain 10
+    println $ chain 1
+    println $ chain 30
+
+    println $ (listOfFuns !! 4) 5
