@@ -1,0 +1,6 @@
+module learnyou.chapter07.LoadingModules where
+
+import Data.List as M ( nub )
+
+numUniques :: (Eq a) => [a] -> Int
+numUniques = length . M.nub
