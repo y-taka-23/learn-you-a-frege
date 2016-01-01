@@ -1,0 +1,162 @@
+module learnyou.chapter07.DataList where
+
+import frege.data.List
+
+stock = [ (994.4, 2008, 9, 1)
+        , (995.2, 2008, 9, 2)
+        , (999.2, 2008, 9, 3)
+        , (1001.4, 2008, 9, 4)
+        , (998.3, 2008, 9, 5)
+        ]
+
+instance (Show a, Show b, Show c, Show d) => Show (a, b, c, d) where
+    show (x, y, z, w) =
+        "(" ++ show x ++ "," ++ show y ++ "," ++ show z ++ "," ++ show w ++ ")"
+
+search :: (Eq a) => [a] -> [a] -> Bool
+search needle haystack =
+    let nlen = length needle
+    in  fold (\acc \x -> if take nlen x == needle then True else acc)
+             false (tails haystack)
+
+compress :: [a] -> (a, Int)
+compress []       = error "empty list"
+compress (x : xs) = (x, length (x : xs))
+
+values = [ -4.3, -2.4, -1.2, 0.4, 2.3
+         , 5.9, 10.5, 29.1, 5.3, -2.4
+         , -14.5, 2.9, 2.3
+         ]
+
+main _ = do
+
+    println $ packed $ intersperse '.' "MONKEY".toList
+    println $ intersperse 0 [ 1, 2, 3, 4, 5, 6 ]
+
+    println $ packed $
+        intercalate " ".toList $ map toList [ "hey", "there", "guys" ]
+    println $ intercalate [ 0, 0, 0 ] [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
+
+    println $ transpose [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
+    println $ (map packed) $ transpose $ (map unpacked) [ "hey", "there", "guys" ]
+
+    println $ map sum $
+        transpose [ [ 0, 3, 5, 9 ], [ 10, 0, 0, 9 ], [ 8, 5, 1, -1 ] ]
+
+    println $ concat [ "foo", "bar", "car" ]
+    println $ concat [ [ 3, 4, 5 ], [ 2, 3, 4 ], [ 2, 1, 1 ] ]
+
+    println $ concatMap (replicate 4) [ 1 .. 3 ]
+
+    println $ and $ map (> 4) [ 5, 6, 7, 8 ]
+    println $ and $ map (== 4) [ 4, 4, 4, 3, 4 ]
+
+    println $ or $ map (== 4) [ 2, 3, 4, 5, 6, 1 ]
+    println $ or $ map (> 4) [ 1, 2, 3 ]
+
+    println $ any (== 4) [ 2, 3, 5, 6, 1, 4 ]
+    println $ all (> 4) [ 6, 9, 10 ]
+    println $ all (`elem` ['A'..'Z']) "HEYGUYSwhatsup".toList
+    println $ any (`elem` ['A'..'Z']) "HEYGUYSwhatsup".toList
+
+    println $ take 10 $ iterate (* 2) 1
+    println $ take 3 $ iterate (++ "haha") "haha"
+
+    println $ splitAt 3 "heyman"
+    --  println $ splitAt 100 "heyman" --> StringIndexOutOfBoundsExeption
+    -- println $ splitAt (-3) "heyman" --> StringIndexOutOfBoundsExeption
+    let (a, b) = splitAt 3 "foobar"
+    println $ b ++ a
+
+    println $ takeWhile (> 3) [ 6, 5, 4, 3, 2, 1, 2, 3, 4, 5, 4, 3, 2, 1 ]
+    println $ packed $ takeWhile (!= ' ') "This is a sentence".toList
+    println $ sum $ takeWhile (< 10000) $ map (^ 3) [1..]
+
+    println $ packed $ dropWhile (!= ' ') "This is a sentence".toList
+    println $ dropWhile (< 3) [ 1, 2, 2, 2, 3, 4, 5, 4, 3, 2, 1 ]
+    println $ head (dropWhile (\(val, y, m, d) -> val < 1000) stock)
+
+    let (fw, rest) = span (!= ' ') "This is a sentence".toList
+    println $ "First word:" ++ (packed fw) ++ ", the rest:" ++ (packed rest)
+
+    println $ break (== 4) [ 1, 2, 3, 4, 5, 6, 7 ]
+    println $ span (!= 4) [ 1, 2, 3, 4, 5, 6, 7 ]
+
+    println $ sort [ 8, 5, 3, 2, 1, 6, 4, 2 ]
+    println $ packed $ sort "This will be sorted soon".toList
+
+    println $ group [ 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 2, 5, 6, 7 ]
+    println $ map compress . group . sort $
+        [ 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 2, 5, 6, 7 ]
+
+    println $ map packed $ inits $ unpacked "w00t"
+    println $ map packed $ tails $ unpacked "w00t"
+    println $ zip (map packed . inits . unpacked $ "w00t")
+                  (map packed . tails . unpacked $ "w00t")
+
+    println $ "cat".toList `isInfixOf` "im a cat burglar".toList
+    println $ "Cat".toList `isInfixOf` "im a cat burglar".toList
+    println $ "cats".toList `isInfixOf` "im a cat burglar".toList
+
+    println $ "hey".toList `isPrefixOf` "hey there!".toList
+    println $ "hey".toList `isPrefixOf` "oh hey there!".toList
+    println $ "there!".toList `isSuffixOf` "oh hey there!".toList
+    println $ "there!".toList `isSuffixOf` "oh hey there".toList
+
+    println $ (\(x, y) -> (packed x, packed y)) $
+        partition (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy".toList
+    println $ partition (> 3) [ 1, 3, 5, 6, 3, 2, 1, 0, 3, 7 ]
+    println $ (\(x, y) -> (packed x, packed y)) $
+        span (`elem` ['A'..'Z']) "BOBsidneyMORGANeddy".toList
+
+    println $ find (> 4) [ 1, 2, 3, 4, 5, 6 ]
+    println $ find (> 9) [ 1, 2, 3, 4, 5, 6 ]
+
+    println $ 4 `elemIndex` [ 1, 2, 3, 4, 5, 6 ]
+    println $ 10 `elemIndex` [ 1, 2, 3, 4, 5, 6 ]
+
+    println $ ' ' `elemIndices` "Where are the spaces?".toList
+
+    println $ findIndex (== 4) [ 5, 3, 2, 1, 6, 4 ]
+    println $ findIndex (== 7) [ 5, 3, 2, 1, 6, 4 ]
+    println $ findIndices (`elem` ['A'..'Z']) "Where Are The Caps?".toList
+
+    println $ zipWith3 (\x \y \z -> x + y + z)
+                       [ 1, 2, 3 ] [ 4, 5, 2, 2 ] [ 2, 2, 3 ]
+    println $ zip4 [ 2, 3, 3 ] [ 2, 2, 2 ] [ 5, 5, 3 ] [ 2, 2, 2 ]
+
+    println $ lines "first line\nsecond line\nthird line"
+    println $ show $ unlines [ "first line", "second line", "third line" ]
+
+    println $ words "hey these are the words in this sentence"
+    println $ words "hey these           are    the words in this\nsentence"
+    println $ unwords [ "hey", "there", "mate" ]
+
+    println $ nub [ 1, 2, 3, 4, 3, 2, 1, 2, 3, 4, 3, 2, 1 ]
+    println $ packed $ nub "Lots of words and stuff".toList
+
+    println $ packed $ delete 'h' "hey there ghang!".toList
+    println $ packed $ delete 'h' . delete 'h' $ "hey there ghang!".toList
+    println $ packed $ delete 'h' . delete 'h' . delete 'h' $ "hey there ghang!".toList
+
+    --
+
+    println $ [ 1 .. 10 ] \\ [ 2, 5, 9 ]
+    println $ packed $ "Im a big baby".toList \\ "big".toList
+
+    println $ packed $ "hey man".toList `union` "man what's up".toList
+    println $ [ 1 .. 7 ] `union` [ 5 .. 10 ]
+
+    println $ [ 1 .. 7 ] `intersect` [ 5 .. 10 ]
+
+    println $ insert 4 [ 3, 5, 1, 2, 8, 2 ]
+    println $ insert 4 [ 1, 3, 4, 4, 1 ]
+    println $ insert 4 [ 1, 2, 3, 5, 6, 7 ]
+    println $ packed $ insert 'g' $ ['a'..'f'] ++ ['h'..'z']
+    println $ insert 3 [ 1, 2, 4, 3, 2, 1 ]
+
+    println $ groupBy (\x \y -> (x > 0) == (y > 0)) values
+    println $ groupBy ((==) `on` (> 0)) values
+
+    let xs = [ [ 5, 4, 5, 4, 4 ], [ 1, 2, 3 ], [ 3, 5, 4, 3 ], [], [ 2 ], [ 2, 2 ] ]
+    println $ sortBy (compare `on` length) xs
