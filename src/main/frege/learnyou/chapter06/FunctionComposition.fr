@@ -1,0 +1,24 @@
+module learnyou.chapter06.FunctionComposition where
+
+import frege.prelude.Math
+
+sum' :: (Num a) => [a] -> a
+--sum' xs = fold (+) 0 xs
+sum' = fold (+) 0
+
+--fn x = ceil (negate (tan (cos (max 50 x))))
+fn = ceil . negate . tan . cos . max 50
+
+oddSquareSum :: Integer
+--oddSquareSum = sum (takeWhile (< 10000) (filter odd (map (^ 2) [1..])))
+--oddSquareSum = sum . takeWhile (< 10000) . filter odd . map (^ 2) $ [1..]
+oddSquareSum =
+    let oddSquares = filter odd $ map (^ 2) [1..]
+        belowLimit = takeWhile (< 10000) oddSquares
+    in  sum belowLimit
+
+main _ = do
+    println $ map (\x -> negate (abs x)) [ 5, -3, -6, 7, -3, 2, -19, 24 ]
+    println $ map (negate . abs) [ 5, -3, -6, 7, -3, 2, -19, 24 ]
+    println $ map (\xs -> negate (sum (tail xs))) [ [1..5], [3..6], [1..7] ]
+    println $ map (negate . sum . tail) [ [1..5], [3..6], [1..7] ]
