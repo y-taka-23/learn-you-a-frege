@@ -1,0 +1,49 @@
+module learnyou.chapter07.DataChar where
+
+import frege.Prelude hiding ( isNumber )
+import frege.data.List
+import frege.data.Char
+
+encode :: Int -> String -> String
+encode shift msg =
+    let ords = map ord $ unpacked msg
+        shifted = map (+ shift) ords
+    in  packed $ map chr shifted
+
+decode :: Int -> String -> String
+decode shift msg = encode (negate shift) msg
+
+main _ = do
+
+    println $ all isAlphaNum "bobby283".toList
+    println $ all isAlphaNum "eddy the fish!".toList
+
+    println $ words "hey guys its me"
+    println $ filter (not . any isSpace) . groupBy ((==) `on` isSpace) $
+        "hey guys its me".toList
+
+    println $ generalCategory ' '
+    println $ generalCategory 'A'
+    println $ generalCategory 'a'
+    println $ generalCategory '.'
+    println $ generalCategory '9'
+    println $ map generalCategory " \t\nA9?|".toList
+
+    println $ map digitToInt "34538".toList
+    println $ map digitToInt "FF85AB".toList
+
+    println $ intToDigit 15
+    println $ intToDigit 5
+
+    println $ ord 'a'
+    println $ chr 97
+    println $ map ord "abcdefgh".toList
+
+    println $ encode 3 "Heeeeey"
+    println $ encode 4 "Heeeeey"
+    println $ encode 1 "abcd"
+    println $ encode 5 "Marry Christmas! Ho ho ho!"
+
+    println $ encode 3 "Im a little teapot"
+    println $ decode 3 "Lp#d#olwwoh#whdsrw"
+    println $ decode 5 . encode 5 $ "This is a sentence"
