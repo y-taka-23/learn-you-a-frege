@@ -1,0 +1,48 @@
+module learnyou.chapter06.OnlyFoldsAndHorses where
+
+import frege.prelude.Math
+
+sum' :: (Num a) => [a] -> a
+--sum' xs = fold (\acc \x -> acc + x) 0 xs
+sum' = fold (+) 0
+
+elem' :: (Eq a) => a -> [a] -> Bool
+elem' y ys = fold (\acc \x -> if x == y then true else acc) false ys
+
+map' :: (a -> b) -> [a] -> [b]
+map' f xs = foldr (\x \acc -> f x : acc) [] xs
+
+maximum' :: (Ord a) => [a] -> a
+maximum' = foldr1 (\x \acc -> if x > acc then x else acc)
+
+reverse' :: [a] -> [a]
+reverse' = fold (\acc \x -> x : acc) []
+
+product' :: (Num a) => [a] -> a
+product' = foldr1 (*)
+
+filter' :: (a -> Bool) -> [a] -> [a]
+filter' p = foldr (\x \acc -> if p x then x : acc else acc) []
+
+head' :: [a] -> a
+head' = foldr1 (\x \_ -> x)
+
+last' :: [a] -> a
+last' = foldl1 (\_ \x -> x)
+
+sqrtSums :: Int
+sqrtSums = length (takeWhile (< 1000) (scanl1 (+) (map sqrt (iterate (+1) 1.0)))) + 1
+
+main _ = do
+
+    println $ sum' [ 3, 5, 2, 1 ]
+
+    println $ scanl (+) 0 [ 3, 5, 2, 1 ]
+    println $ scanr (+) 0 [ 3, 5, 2, 1 ]
+    println $ scanl1 (\acc \x -> if x > acc then x else acc)
+                     [ 3, 4, 5, 3, 7, 9, 2, 1 ]
+    println $ scanl (flip (:)) [] [ 3, 2, 1 ]
+
+    println $ sqrtSums
+    println $ sum (map sqrt $ take 131 $ iterate (+1) 1.0)
+    println $ sum (map sqrt $ take 130 $ iterate (+1) 1.0)
