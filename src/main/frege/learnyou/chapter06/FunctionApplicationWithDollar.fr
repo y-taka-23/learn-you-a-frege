@@ -1,0 +1,6 @@
+module learnyou.chapter06.FunctionApplicationWithDollar where
+
+import frege.prelude.Math
+
+main _ = do
+    println $ map ($ 3) [ (4 +), (10 *), (^ 2), sqrt ]
