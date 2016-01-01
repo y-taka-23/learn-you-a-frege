@@ -139,8 +139,6 @@ main _ = do
     println $ packed $ delete 'h' . delete 'h' $ "hey there ghang!".toList
     println $ packed $ delete 'h' . delete 'h' . delete 'h' $ "hey there ghang!".toList
 
-    --
-
     println $ [ 1 .. 10 ] \\ [ 2, 5, 9 ]
     println $ packed $ "Im a big baby".toList \\ "big".toList
 
