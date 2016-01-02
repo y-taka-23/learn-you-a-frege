@@ -1,0 +1,90 @@
+module learnyou.chapter07.DataSet where
+
+import frege.Prelude hiding ( map, filter )
+import frege.data.HashMap as HM ()
+import frege.data.List ( nub )
+
+type Set a = HM.HashMap a ()
+
+map' :: (a -> b) -> [a] -> [b]
+map' _ []       = []
+map' f (x : xs) = f x : map' f xs
+
+fromList :: (Eq a) => [a] -> Set a
+fromList = HM.fromList . map' (\x -> (x, ()))
+
+intersection :: (Eq a) => Set a -> Set a -> Set a
+intersection = HM.intersection
+
+difference :: (Eq a) => Set a -> Set a -> Set a
+difference = HM.difference
+
+union :: (Eq a) => Set a -> Set a -> Set a
+union = HM.union
+
+size :: Set a -> Int
+size = HM.size
+
+singleton :: (Eq a) => a -> Set a
+singleton x = HM.singleton x ()
+
+insert :: (Eq a) => a -> Set a -> Set a
+insert x = HM.insert x ()
+
+delete :: (Eq a) => a -> Set a -> Set a
+delete x = HM.delete x
+
+map :: (Eq a, Eq b) => (a -> b) -> Set a -> Set b
+map f = fromList . map' f . map' fst . HM.each
+
+filter :: (a -> Bool) -> Set a -> Set a
+filter f = HM.filterWithKey (\x \_ -> f x)
+
+each :: Set a -> [a]
+each = map' fst . HM.each
+
+isSubsetOf :: (Eq a) => Set a -> Set a -> Bool
+isSubsetOf xs ys = and $ map' (`elem` (each ys)) $ each xs
+
+isProperSubsetOf :: (Eq a) => Set a -> Set a -> Bool
+isProperSubsetOf xs ys = xs `isSubsetOf` ys && size xs < size ys
+
+setNub :: (Eq a) => [a] -> [a]
+setNub xs = each $ fromList xs
+
+text1 = "I just had an anime dream. Anime... Reality... Are they so different?"
+text2 = "The old man left his garbage can out and now his trash is all over my lawn!"
+
+set1 = fromList . unpacked $ text1
+set2 = fromList . unpacked $ text2
+
+main _ = do
+
+    println $ set1
+    println $ set2
+
+    println $ intersection set1 set2
+
+    println $ difference set1 set2
+    println $ difference set2 set1
+
+    println $ union set1 set2
+
+    println $ null (empty :: Set Int)
+    println $ null $ fromList [ 3, 4, 5, 5, 4, 3 ]
+    println $ size $ fromList [ 3, 4, 5, 5, 4, 3 ]
+    println $ singleton 9
+    println $ insert 4 $ fromList [ 9, 3, 8, 1 ]
+    println $ insert 8 $ fromList [ 5 .. 10 ]
+    println $ delete 4 $ fromList [ 3, 4, 5, 4, 3, 4, 5 ]
+
+    println $ fromList [ 2, 3, 4 ] `isSubsetOf` fromList [ 1, 2, 3, 4, 5 ]
+    println $ fromList [ 1, 2, 3, 4, 5 ] `isSubsetOf` fromList [ 1, 2, 3, 4, 5 ]
+    println $ fromList [ 1, 2, 3, 4, 5 ] `isProperSubsetOf` fromList [ 1, 2, 3, 4, 5 ]
+    println $ fromList [ 2, 3, 4, 8 ] `isSubsetOf` fromList [ 1, 2, 3, 4, 5 ]
+
+    println $ filter odd $ fromList [ 3, 4, 5, 6, 7, 2, 3, 4 ]
+    println $ map (+ 1) $ fromList [ 3, 4, 5, 6, 7, 2, 3, 4 ]
+
+    println $ setNub $ "HEY WHATS CRACKALACKIN".toList
+    println $ nub $ "HEY WHATS CRACKALACKIN".toList
