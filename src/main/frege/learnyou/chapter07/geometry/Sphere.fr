@@ -1,0 +1,9 @@
+module learnyou.chapter07.geometry.Sphere where
+
+import frege.prelude.Math ()
+
+volume :: Float -> Float
+volume radius = (4.0 / 3.0) * Math.pi * (radius ^ 3)
+
+area :: Float -> Float
+area radius = 4 * Math.pi * (radius ^ 2)

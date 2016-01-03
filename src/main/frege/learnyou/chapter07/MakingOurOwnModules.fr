@@ -1,0 +1,17 @@
+module learnyou.chapter07.MakingOurOwnModules where
+
+import learnyou.chapter07.geometry.Sphere ()
+import learnyou.chapter07.geometry.Cuboid ()
+import learnyou.chapter07.geometry.Cube ()
+
+main _ = do
+
+    println $ Sphere.volume 2
+    println $ Sphere.area 2
+
+    println $ Cuboid.volume 1 2 3
+    println $ Cuboid.area 1 2 3
+    --println $ Cuboid.rectangleArea 1 2 --> error, due to its private scope.
+
+    println $ Cube.volume 2
+    println $ Cube.area 2

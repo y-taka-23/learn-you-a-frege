@@ -1,0 +1,11 @@
+module learnyou.chapter07.geometry.Cuboid where
+
+volume :: Float -> Float -> Float -> Float
+volume a b c = rectangleArea a b * c
+
+area :: Float -> Float -> Float -> Float
+area a b c =
+    rectangleArea a b * 2 + rectangleArea a c * 2 + rectangleArea c b * 2
+
+private rectangleArea :: Float -> Float -> Float
+private rectangleArea a b = a * b
