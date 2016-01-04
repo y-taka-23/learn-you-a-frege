@@ -1,0 +1,42 @@
+module learnyou.chapter08.AlgebraicDataTypesIntro where
+
+import frege.prelude.Math ()
+
+data Point = Point Float Float
+derive Show Point
+
+data Shape =
+      Circle    Point Float
+    | Rectangle Point Point
+derive Show Shape
+
+surface :: Shape -> Float
+surface (Circle _ r) = Math.pi * r ^ 2
+surface (Rectangle (Point x1 y1) (Point x2 y2)) =
+    (abs $ x2 - x1) * (abs $ y2 - y1)
+
+nudge :: Shape -> Float -> Float -> Shape
+nudge (Circle (Point x y) r) a b =
+    Circle (Point (x + a) (y + b)) r
+nudge (Rectangle (Point x1 y1) (Point x2 y2)) a b =
+    Rectangle (Point (x1 + a) (y1 + b)) (Point (x2 + a) (y2 + b))
+
+baseCircle :: Float -> Shape
+baseCircle r = Circle (Point 0 0) r
+
+baseRect :: Float -> Float -> Shape
+baseRect width height = Rectangle (Point 0 0) (Point width height)
+
+main _ = do
+
+    println $ surface $ Circle (Point 10 20) 10
+    println $ surface $ Rectangle (Point 0 0) (Point 100 100)
+
+    println $ Circle (Point 10 10) 5
+    println $ Rectangle (Point 50 230) (Point 60 90)
+
+    println $ map (Circle (Point 10 20)) [ 4, 5, 6, 6 ]
+
+    println $ nudge (Circle (Point 34 34) 10) 5 10
+
+    println $ nudge (baseRect 40 100) 60 23
