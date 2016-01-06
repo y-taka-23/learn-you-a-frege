@@ -1,0 +1,37 @@
+module learnyou.chapter08.RecordSyntax where
+
+data Person = Person
+    { firstName :: String
+    , lastName :: String
+    , age :: Int
+    , height :: Float
+    , phoneNumber :: String
+    , flavor :: String
+    }
+derive Show Person
+
+guy :: Person
+guy = Person
+    { firstName = "Buddy"
+    , lastName = "Finklestein"
+    , age = 43
+    , height = 184.2
+    , phoneNumber = "526-2928"
+    , flavor = "Chocolate"
+    }
+
+data Car = Car
+    { company :: String
+    , model :: String
+    , year :: Int
+    }
+derive Show Car
+
+main _ = do
+
+    println $ guy.firstName
+    println $ guy.height
+    println $ guy.flavor
+
+    let ponyCar = Car { company = "Ford", model = "Mustang", year = 1967 }
+    println $ ponyCar --> not a record-style showing...
