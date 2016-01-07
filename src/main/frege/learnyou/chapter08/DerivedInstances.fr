@@ -1,0 +1,57 @@
+module learnyou.chapter08.DerivedInstances where
+
+data Person = Person
+    { firstName :: String
+    , lastName :: String
+    , age :: Int
+    }
+derive Eq   Person
+derive Show Person
+
+mikeD = Person { firstName = "Michael", lastName = "Diamond", age = 43 }
+adRock = Person { firstName = "Adam", lastName = "Horovitz", age = 41 }
+mca = Person { firstName = "Adam", lastName = "Yauch", age = 44 }
+
+beastieBoys = [mca, adRock, mikeD]
+
+data Day =
+      Monday
+    | Tuesday
+    | Wednesday
+    | Thursday
+    | Friday
+    | Saturday
+    | Sunday
+derive Eq      Day
+derive Ord     Day
+derive Show    Day
+derive Bounded Day
+derive Enum    Day
+
+main _ = do
+
+    println $ mca == adRock
+    println $ mikeD == adRock
+    println $ mikeD == mikeD
+    println $ mikeD == Person { firstName = "Michael", lastName = "Diamond", age = 43 }
+
+    println $ mikeD `elem` beastieBoys
+
+    println $ "mikeD is: " ++ show mikeD
+
+    println $ true `compare` false
+    println $ true > false
+    println $ true < false
+
+    println $ Nothing < Just 100
+    println $ Nothing > Just (-49999)
+    println $ Just 3 `compare` Just 2
+    println $ Just 100 > Just 50
+
+    println $ (minBound :: Day)
+    println $ (maxBound :: Day)
+
+    println $ succ Monday
+    println $ pred Saturday
+    println $ [ Thursday .. Sunday ]
+    println $ ([ minBound .. maxBound ] :: [Day])
