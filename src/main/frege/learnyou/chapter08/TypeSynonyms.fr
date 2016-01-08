@@ -1,0 +1,52 @@
+module learnyou.chapter08.TypeSynonyms where
+
+import frege.data.HashMap as HM ()
+
+type PhoneNumber = String
+type Name = String
+type PhoneBook = [(Name, PhoneNumber)]
+
+inPhoneBook :: Name -> PhoneNumber -> PhoneBook -> Bool
+inPhoneBook name pnumber pbook = (name, pnumber) `elem` pbook
+
+type AssocList k v = [(k, v)]
+--type IntMap v = HM.HashMap Int v
+type IntMap = HM.HashMap Int
+
+data LockerState = Taken | Free
+derive Show LockerState
+derive Eq   LockerState
+
+type Code = String
+type LockerMap = HM.HashMap Int (LockerState, Code)
+
+lockerLookup :: Int -> LockerMap -> (String | Code)
+lockerLookup lockerNumber map =
+    case HM.lookup lockerNumber map of
+        Nothing ->
+            Left $ "Locker number " ++ show lockerNumber ++ " doesn't exist!"
+        Just (state, code) ->
+            if state != Taken
+                then Right code
+                else Left $ "Locker " ++ show lockerNumber ++ " is already taken!"
+
+lockers :: LockerMap
+lockers = HM.fromList
+    [ (100, (Taken, "ZD39I"))
+    , (101, (Free, "JAH3I"))
+    , (103, (Free, "IQSA9"))
+    , (105, (Free, "QOTSA"))
+    , (109, (Taken, "893JJ"))
+    , (110, (Taken, "99292"))
+    ]
+
+main _ = do
+
+    println $ (Right 20 :: (String | Int))
+    println $ (Left "w00t" :: (String | Int))
+
+    println $ lockerLookup 101 lockers
+    println $ lockerLookup 100 lockers
+    println $ lockerLookup 102 lockers
+    println $ lockerLookup 110 lockers
+    println $ lockerLookup 105 lockers
