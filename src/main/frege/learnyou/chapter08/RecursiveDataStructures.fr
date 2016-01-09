@@ -1,0 +1,64 @@
+module learnyou.chapter08.RecursiveDataStructures where
+
+data List a =
+      Empty
+    | Cons a (List a)
+derive Show (List a)
+derive Eq   (List a)
+derive Ord  (List a)
+
+infixr 5 `:-:`
+(:-:) :: a -> List a -> List a
+x :-: xs = Cons x xs
+
+infixr 5 `.++`
+(.++) :: List a -> List a -> List a
+Empty       .++ ys = ys
+(Cons x xs) .++ ys = Cons x (xs .++ ys)
+
+data Tree a =
+      EmptyTree
+    | Node a (Tree a) (Tree a)
+derive Show (Tree a)
+derive Eq   (Tree a)
+
+singleton :: a -> Tree a
+singleton x = Node x EmptyTree EmptyTree
+
+treeInsert :: (Ord a) => a -> Tree a -> Tree a
+treeInsert x EmptyTree = singleton x
+treeInsert x (Node a left right)
+    | x == a = Node x left right
+    | x < a  = Node a (treeInsert x left) right
+    | x > a  = Node a left (treeInsert x right)
+
+treeElem :: (Ord a) => a -> Tree a -> Bool
+treeElem x EmptyTree = false
+treeElem x (Node a left right)
+    | x == a = true
+    | x < a  = treeElem x left
+    | x > a  = treeElem x right
+
+main _ = do
+
+    println $ (Empty :: List Int)
+    println $ 5 `Cons` Empty
+    println $ 4 `Cons` (5 `Cons` Empty)
+    println $ 3 `Cons` (4 `Cons` (5 `Cons` Empty))
+
+    println $ 3 :-: 4 :-: 5 :-: Empty
+    let a = 3 :-: 4 :-: 5 :-: Empty
+    println $ 100 :-: a
+
+    let a = 3 :-: 4 :-: 5 :-: Empty
+    let b = 6 :-: 7 :-: Empty
+    println $ a .++ b
+
+    let nums = [ 8, 6, 4, 1, 7, 3, 5 ]
+    let numsTree = foldr treeInsert EmptyTree nums
+    println $ numsTree
+
+    println $ 8 `treeElem` numsTree
+    println $ 100 `treeElem` numsTree
+    println $ 1 `treeElem` numsTree
+    println $ 10 `treeElem` numsTree
