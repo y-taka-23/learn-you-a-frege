@@ -1,0 +1,37 @@
+module learnyou.chapter08.Typeclasses102 where
+
+data TrafficLight = Red | Yellow | Green
+
+instance Eq TrafficLight where
+
+    Red    == Red    = true
+    Green  == Green  = true
+    Yellow == Yellow = true
+    _      == _      = false
+
+    hashCode Red    = 0
+    hashCode Green  = 1
+    hashCode Yellow = 2
+
+instance Show TrafficLight where
+    show Red    = "Red light"
+    show Yellow = "Yellow light"
+    show Green  = "Green light"
+
+data Maybe' a = Nothing' | Just' a
+
+instance (Eq m) => Eq (Maybe' m) where
+
+    Just' x  == Just' y  = x == y
+    Nothing' == Nothing' = true
+    _        == _        = false
+
+    hashCode (Just' x) = hashCode x
+    hashCode Nothing'  = 0
+
+main _ = do
+
+    println $ Red == Red
+    println $ Red == Yellow
+    println $ Red `elem` [ Red, Yellow, Green ]
+    println $ [ Red, Yellow, Green ]
