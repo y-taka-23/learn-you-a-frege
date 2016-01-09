@@ -1,0 +1,53 @@
+module learnyou.chapter08.AYesNoTypeclass where
+
+import learnyou.chapter08.RecursiveDataStructures ( Tree )
+import learnyou.chapter08.Typeclasses102 ( TrafficLight )
+
+class YesNo a where
+    yesno :: a -> Bool
+
+instance YesNo Int where
+    yesno 0 = false
+    yesno _ = true
+
+instance YesNo [a] where
+    yesno [] = false
+    yesno _  = true
+
+instance YesNo Bool where
+    yesno = id
+
+instance YesNo (Maybe a) where
+    yesno (Just _) = true
+    yesno Nothing  = false
+
+instance YesNo (Tree a) where
+    yesno EmptyTree = false
+    yesno _         = true
+
+instance YesNo TrafficLight where
+    yesno Red = false
+    yesno _   = true
+
+yesnoIf :: (YesNo y) => y -> a -> a -> a
+yesnoIf yesnoVal yesResult noResult =
+    if yesno yesnoVal
+        then yesResult
+        else noResult
+
+main _ = do
+
+    println $ yesno $ length []
+    println $ yesno "haha".toList
+    println $ yesno "".toList
+    println $ yesno $ Just 0
+    println $ yesno true
+    println $ yesno (EmptyTree :: Tree Int)
+    println $ yesno ([] :: [Int])
+    println $ yesno [ 0, 0, 0 ]
+
+    println $ yesnoIf ([] :: [Int]) "YEAH!" "NO!"
+    println $ yesnoIf [ 2, 3, 4 ] "YEAH!" "NO!"
+    println $ yesnoIf true "YEAH!" "NO!"
+    println $ yesnoIf (Just 500) "YEAH!" "NO!"
+    println $ yesnoIf (Nothing :: Maybe Int) "YEAH!" "NO!"
