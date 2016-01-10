@@ -1,0 +1,19 @@
+module learnyou.chapter08.KindsAndSomeTypeFoo where
+
+class Tofu t where
+    tofu :: j a -> t a j
+
+data Frank a b = Frank { frankField :: b a }
+derive (Show (b a)) => Show (Frank a b)
+
+instance Tofu Frank where
+    tofu x = Frank x
+
+data Barry t k p = Barry { yabba :: p, dabba :: t k }
+
+instance Functor (Barry a b) where
+    fmap f (Barry { yabba = x, dabba = y }) = Barry { yabba = f x, dabba = y }
+
+main _ = do
+    println $ (tofu (Just 'a') :: Frank Char Maybe)
+    println $ (tofu (["HELLO"]) :: Frank String [])
