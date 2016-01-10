@@ -1,0 +1,32 @@
+module learnyou.chapter08.TheFunctorTypeclass where
+
+import frege.data.HashMap as HM ()
+import learnyou.chapter08.RecursiveDataStructures ( Tree, treeInsert )
+
+instance Functor Tree where
+    fmap f EmptyTree = EmptyTree
+    fmap f (Node x leftsub rightsub) =
+        Node (f x) (fmap f leftsub) (fmap f rightsub)
+
+instance Functor (Either a) where
+    fmap f (Right x) = Right (f x)
+    fmap f (Left x)  = Left x
+
+class Functor' f where
+    fmap' :: (a -> b) -> f a -> f b
+
+instance Functor' (HM.HashMap k) where
+    fmap' = HM.mapValues
+
+main _ = do
+
+    println $ fmap (* 2) [ 1, 2, 3 ]
+    println $ map (* 2) [ 1, 2, 3 ]
+
+    println $ fmap (++ " HEY GUYS IM INSIDE THE JUST") (Just "Something serious.")
+    println $ fmap (++ " HEY GUYS IM INSIDE THE JUST") Nothing
+    println $ fmap (* 2) (Just 200)
+    println $ fmap (* 2) Nothing
+
+    println $ fmap (* 2) EmptyTree
+    println $ fmap (* 4) (foldr treeInsert EmptyTree [ 5, 7, 3, 2, 1, 7 ])
