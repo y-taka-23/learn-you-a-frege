@@ -1,0 +1,53 @@
+module learnyou.chapter11.FunctorsRedux where
+
+import frege.data.Char ( toUpper )
+import frege.data.List ( intersperse )
+
+example1 :: IO ()
+example1 = do
+    line <- fmap (packed . reverse . unpacked) getLine
+    putStrLn $ "You said " ++ line ++ " backwards!"
+    putStrLn $ "Yes, you really said" ++ line ++ " backwards!"
+
+example2 :: IO ()
+example2 = do
+    line <- fmap (packed . intersperse '-' . reverse . map toUpper . unpacked) getLine
+    putStrLn line
+
+data CMaybe a = CNothing | CJust Int a
+derive Show (CMaybe a)
+
+instance Functor CMaybe where
+    fmap f CNothing          = CNothing
+    fmap f (CJust counter x) = CJust (counter + 1) (f x)
+
+main _ = do
+
+    println $ fmap (* 3) (+ 100) 1
+    println $ (* 3) `fmap` (+ 100) $ 1
+    println $ (* 3) . (+ 100) $ 1
+    println $ fmap (show . (* 3)) (* 100) 1
+
+    println $ fmap (replicate 3) [ 1, 2, 3, 4 ]
+    println $ fmap (replicate 3) (Just 4)
+    println $ fmap (replicate 3) (Right "blah" :: (String | String))
+    println $ fmap (replicate 3) (Nothing :: Maybe Int)
+    println $ fmap (replicate 3) (Left "foo" :: (String | String))
+
+    println $ fmap id (Just 3)
+    println $ id (Just 3)
+    println $ fmap id [ 1 .. 5 ]
+    println $ id [ 1 .. 5 ]
+    println $ fmap id ([] :: [Int])
+    println $ fmap id (Nothing :: Maybe Int)
+
+    println $ (CNothing :: CMaybe String)
+    println $ CJust 0 "haha"
+    println $ CJust 100 [ 1, 2, 3 ]
+
+    println $ fmap (++ "ha") (CJust 0 "ho")
+    println $ fmap (++ "he") (fmap (++ "ha") (CJust 0 "ho"))
+    println $ fmap (++ "blah") CNothing
+
+    println $ fmap id (CJust 0 "haha")
+    println $ id (CJust 0 "haha")
