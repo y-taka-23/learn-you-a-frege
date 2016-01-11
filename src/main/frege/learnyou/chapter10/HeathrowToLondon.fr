@@ -1,0 +1,65 @@
+module learnyou.chapter10.HeathrowToLondon where
+
+import frege.data.List ( !! )
+
+data Section = Section
+    { getA :: Int
+    , getB :: Int
+    , getC :: Int
+    }
+derive Show Section
+
+type RoadSystem = [Section]
+
+heathrowToLondon :: RoadSystem
+heathrowToLondon =
+    [ Section 50 10 30
+    , Section  5 90 20
+    , Section 40  2 25
+    , Section 10  8  0
+    ]
+
+data Label = A | B | C
+derive Show Label
+
+type Path = [(Label, Int)]
+
+roadStep :: (Path, Path) -> Section -> (Path, Path)
+roadStep (pathA, pathB) (Section a b c) =
+    let priceA = sum $ map snd pathA
+        priceB = sum $ map snd pathB
+        forwardPriceToA = priceA + a
+        clossPriceToA   = priceB + b + c
+        forwardPriceToB = priceB + b
+        clossPriceToB   = priceA + a + c
+        newPathToA =
+            if forwardPriceToA <= clossPriceToA
+                then (A, a) : pathA
+                else (C, c) : (B, b) : pathB
+        newPathToB =
+            if forwardPriceToB <= clossPriceToB
+                then (B, b) : pathB
+                else (C, c) : (A, a) : pathA
+    in  (newPathToA, newPathToB)
+
+optimalPath :: RoadSystem -> Path
+optimalPath roadSystem =
+    let (bestAPath, bestBPath) = fold roadStep ([], []) roadSystem
+    in  if sum (map snd bestAPath) <= sum (map snd bestBPath)
+            then reverse bestAPath
+            else reverse bestBPath
+
+groupOf :: Int -> [a] -> [[a]]
+groupOf 0 _  = error "The first argument of 'groupOf' must be greater than 0."
+groupOf _ [] = []
+groupOf n xs = take n xs : groupOf n (drop n xs)
+
+main _ = do
+    contents <- getContents
+    let threes     = groupOf 3 . map atoi . lines $ contents
+        roadSystem = map (\xs -> Section (xs !! 0) (xs !! 1) (xs !! 2)) threes
+        path       = optimalPath roadSystem
+        pathString = concat $ map (show . fst) path
+        pathPrice  = sum $ map snd path
+    putStrLn $ "The best path to take is: " ++ pathString
+    putStrLn $ "The price is: " ++ show pathPrice
