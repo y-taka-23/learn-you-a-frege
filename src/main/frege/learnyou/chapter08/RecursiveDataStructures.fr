@@ -28,16 +28,16 @@ singleton x = Node x EmptyTree EmptyTree
 treeInsert :: (Ord a) => a -> Tree a -> Tree a
 treeInsert x EmptyTree = singleton x
 treeInsert x (Node a left right)
-    | x == a = Node x left right
-    | x < a  = Node a (treeInsert x left) right
-    | x > a  = Node a left (treeInsert x right)
+    | x == a     = Node x left right
+    | x < a      = Node a (treeInsert x left) right
+    | otherwise  = Node a left (treeInsert x right)
 
 treeElem :: (Ord a) => a -> Tree a -> Bool
 treeElem x EmptyTree = false
 treeElem x (Node a left right)
-    | x == a = true
-    | x < a  = treeElem x left
-    | x > a  = treeElem x right
+    | x == a     = true
+    | x < a      = treeElem x left
+    | otherwise  = treeElem x right
 
 main _ = do
 
