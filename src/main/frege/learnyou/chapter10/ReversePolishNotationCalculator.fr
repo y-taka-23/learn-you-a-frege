@@ -1,0 +1,39 @@
+module learnyou.chapter10.ReversePolishNotationCalculator where
+
+import frege.prelude.Math ( **, log )
+
+class Read a where
+    read :: String -> a
+
+instance Read Double where
+    read str = intPart + fracPart
+        where (intList, fracList) = break (== '.') . unpacked $ str
+              intPart  = fromInt . atoi . packed $ intList
+              fracStr  = if null fracList then "0" else (packed . tail) fracList
+              fracPart = (fromInt . atoi $ fracStr) / 10 ^ (length fracStr)
+
+solveRPN :: String -> Double
+solveRPN = head . fold foldFunction [] . words
+    where foldFunction (x : y : ys) "*" = (y * x) : ys
+          foldFunction (x : y : ys) "+" = (y + x) : ys
+          foldFunction (x : y : ys) "-" = (y - x) : ys
+          foldFunction (x : y : ys) "/" = (y / x) : ys
+          foldFunction (x : y : ys) "^" = (y ** x) : ys
+          foldFunction (x : xs) "ln"    = (log x) : xs
+          foldFunction xs "sum"         = [sum xs]
+          foldFunction xs numberString  = read numberString : xs
+
+main _ = do
+
+    println $ solveRPN "10 4 3 + 2 * -"
+    println $ solveRPN "2 3 +"
+    println $ solveRPN "90 34 12 33 55 66 + * - +"
+    println $ solveRPN "90 34 12 33 55 66 + * - + -"
+    println $ solveRPN "90 34 12 33 55 66 + * - + -"
+    println $ solveRPN "90 3 -"
+
+    println $ solveRPN "2.7 ln"
+    println $ solveRPN "10 10 10 10 sum 4 /"
+    println $ solveRPN "10 10 10 10 10 sum 4 /"
+    println $ solveRPN "10 2 ^"
+    println $ solveRPN "43.2425 0.5 ^"
