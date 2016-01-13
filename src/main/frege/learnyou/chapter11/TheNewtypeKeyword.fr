@@ -1,0 +1,31 @@
+module learnyou.chapter11.TheNewtypeKeyword where
+
+data CharList = CharList { getCharList :: [Char] }
+derive Eq   CharList
+derive Show CharList
+
+data Pair b a = Pair { getPair :: (a, b) }
+
+data Foo = Foo { foo :: String }
+
+instance Functor (Pair c) where
+    fmap f (Pair (x, y)) = Pair (f x, y)
+
+data CoolBool = CoolBool { getCoolBool :: Bool }
+
+helloMe :: CoolBool -> String
+helloMe (CoolBool _) = "hello"
+
+main _ = do
+
+    println $ CharList "this will be shown!".toList
+    println $ CharList "benny".toList == CharList "benny".toList
+    println $ CharList "benny".toList == CharList "oisters".toList
+
+    let p1 = fmap (* 100) (Pair (2, 3))
+        p2 = fmap (packed . reverse . unpacked) (Pair ("london calling", 3))
+    println $ p1.getPair
+    println $ p2.getPair
+
+    -- Frege's 'data' is not lazy unlike Haskell's 'newtype'
+--    println $ helloMe undefined --> runtime error
