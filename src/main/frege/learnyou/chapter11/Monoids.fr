@@ -1,0 +1,112 @@
+module learnyou.chapter11.Monoids where
+
+import frege.data.Foldable as F ()
+import frege.data.Monoid
+import frege.data.wrapper.Boolean
+import frege.data.wrapper.Num
+
+import learnyou.chapter08.RecursiveDataStructures ( Tree )
+
+lengthCompare1 :: String -> String -> Ordering
+lengthCompare1 x y =
+    (length x `compare` length y) `mappend`
+    (x `compare` y)
+
+lengthCompare2 :: String -> String -> Ordering
+lengthCompare2 x y =
+    (length x `compare` length y) `mappend`
+            (vowels x `compare` vowels y) `mappend`
+            (x `compare` y)
+        where vowels = length . filter (`elem` "aeiou".toList) . unpacked
+
+instance Functor Tree where
+    fmap _ EmptyTree    = EmptyTree
+    fmap f (Node x l r) = Node (f x) (fmap f l) (fmap f r)
+
+instance F.Foldable Tree where
+    foldMap f EmptyTree    = mempty
+    foldMap f (Node x l r) =
+        F.foldMap f l `mappend` f x `mappend` F.foldMap f r
+
+testTree :: Tree Int
+testTree =
+    Node 5
+        (Node 3
+            (Node 1 EmptyTree EmptyTree)
+            (Node 6 EmptyTree EmptyTree)
+        )
+        (Node 9
+            (Node 8  EmptyTree EmptyTree)
+            (Node 10 EmptyTree EmptyTree)
+        )
+
+main _ = do
+
+    println $ [ 1, 2, 3 ] `mappend` [ 4, 5, 6 ]
+    println $ ("one" `mappend` "two") `mappend` "three"
+    println $ "one" `mappend` ("two" `mappend` "three")
+    println $ "one" `mappend` "two" `mappend` "tree"
+    println $ "pang" `mappend` mempty
+    println $ mconcat [ [ 1, 2 ], [ 3, 6 ], [ 9 ] ]
+    println $ (mempty :: [Int])
+
+    println $ "one" `mappend` "two"
+    println $ "two" `mappend` "one"
+
+    println $ getProduct $ Product 3 `mappend` Product 9
+    println $ getProduct $ Product 3 `mappend` mempty
+    println $ getProduct $ Product 3 `mappend` Product 4 `mappend` Product 2
+    println $ getProduct $ mconcat . map Product $ [ 3, 4, 2 ]
+
+    println $ getSum $ Sum 2 `mappend` Sum 9
+    println $ getSum $ mempty `mappend` Sum 3
+    println $ getSum $ mconcat . map Sum $ [ 1, 2, 3 ]
+
+    println $ getAny $ Any true `mappend` Any false
+    println $ getAny $ mempty `mappend` Any true
+    println $ getAny $ mconcat . map Any $ [ false, false, false, true ]
+    println $ getAny $ mempty `mappend` mempty
+
+    println $ getAll $ mempty `mappend` All true
+    println $ getAll $ mempty `mappend` All false
+    println $ getAll $ mconcat . map All $ [ true, true, true ]
+    println $ getAll $ mconcat . map All $ [ true, true, false ]
+
+    println $ Lt `mappend` Gt
+    println $ Gt `mappend` Lt
+    println $ mempty `mappend` Lt
+    println $ mempty `mappend` Gt
+
+    println $ lengthCompare1 "zen" "ants"
+    println $ lengthCompare1 "zen" "ant"
+
+    println $ lengthCompare2 "zen" "anna"
+    println $ lengthCompare2 "zen" "ana"
+    println $ lengthCompare2 "zen" "ann"
+
+    println $ Nothing `mappend` Just "andy"
+    println $ Just Lt `mappend` Nothing
+    println $ Just (Sum 3) `mappend` Just (Sum 4)
+
+    println (First (Just 'a') `mappend` First (Just 'b')).getFirst
+    println (First Nothing `mappend` First (Just 'b')).getFirst
+    println (First (Just 'a') `mappend` First Nothing).getFirst
+
+    println (mconcat . map First $ [ Nothing, Just 9, Just 10 ]).getFirst
+
+    println (mconcat . map Last $ [ Nothing, Just 9, Just 10 ]).getLast
+    println (Last (Just "one") `mappend` Last (Just "two")).getLast
+
+    println $ foldr (*) 1 [ 1, 2, 3 ]
+    println $ F.foldr (*) 1 [ 1, 2, 3 ]
+
+    println $ F.foldl (+) 2 (Just 9)
+    println $ F.foldl (||) false (Just true)
+
+    println $ F.foldl (+) 0 testTree
+    println $ F.foldl (*) 1 testTree
+
+    println $ getAny $ F.foldMap (\x -> Any $ x == 3) testTree
+    println $ getAny $ F.foldMap (\x -> Any $ x > 15) testTree
+
+    println $ F.foldMap (\x -> [x]) testTree
