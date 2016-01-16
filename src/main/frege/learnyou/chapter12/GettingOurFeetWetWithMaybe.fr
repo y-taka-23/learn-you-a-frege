@@ -1,0 +1,18 @@
+module learnyou.chapter12.GettingOurFeetWetWithMaybe where
+
+applyMaybe :: Maybe a -> (a -> Maybe b) -> Maybe b
+applyMaybe Nothing  _ = Nothing
+applyMaybe (Just x) f = f x
+
+main _ = do
+
+    println $ (\x -> Just (x + 1)) 1
+    println $ (\x -> Just (x + 1)) 100
+
+    println $ Just 3 `applyMaybe` \x -> Just (x + 1)
+    println $ Just "smile" `applyMaybe` \x -> Just (x ++ " :)")
+    println $ Nothing `applyMaybe` \x -> Just (x + 1)
+    println $ Nothing `applyMaybe` \x -> Just (x ++ " :)")
+
+    println $ Just 3 `applyMaybe` \x -> if x > 2 then Just x else Nothing
+    println $ Just 1 `applyMaybe` \x -> if x > 2 then Just x else Nothing
