@@ -1,0 +1,7 @@
+module learnyou.chapter12.TheMonadTypeClass where
+
+main _ = do
+
+    println $ (return "What" :: Maybe String)
+    println $ Just 9 >>= \x -> return (x * 10)
+    println $ Nothing >>= \x -> return (x * 10)
