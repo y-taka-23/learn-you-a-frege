@@ -1,0 +1,52 @@
+module learnyou.chapter12.DoNotation where
+
+import learnyou.chapter12.WalkTheLine ( landLeft, landRight, Pole )
+
+foo' :: Maybe String
+foo' =
+    Just 3   >>= (\x ->
+    Just "!" >>= (\y ->
+    Just (show x ++ y)))
+
+foo :: Maybe String
+foo = do
+    x <- Just 3
+    y <- Just "!"
+    return (show x ++ y)
+
+marySue :: Maybe Bool
+marySue = do
+    x <- Just 9
+    return (x > 8)
+
+routine1 :: Maybe Pole
+routine1 = do
+    start  <- return (0, 0)
+    first  <- landLeft 2 start
+    second <- landRight 2 first
+    landLeft 1 second
+
+routine2 :: Maybe Pole
+routine2 = do
+    start <- return (0, 0)
+    first <- landLeft 2 start
+    Nothing
+    second <- landRight 2 first
+    landLeft 1 second
+
+justH :: Maybe Char
+justH = do
+    (x : xs) <- Just "hello".toList
+    return x
+
+wopwop :: Maybe Char
+wopwop = do
+    (x : xs) <- Just "".toList
+    return x
+
+main _ = do
+
+    println routine1
+    println routine2
+
+    println wopwop
