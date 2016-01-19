@@ -1,0 +1,54 @@
+module learnyou.chapter12.TheListMonad where
+
+listOfTuples :: [(Int, Char)]
+listOfTuples = do
+    n  <- [ 1, 2 ]
+    ch <- [ 'a', 'b' ]
+    return (n, ch)
+
+sevensOnly :: [Int]
+sevensOnly = do
+    x <- [1 .. 50]
+    guard ('7' `elem` (toList . show) x)
+    return x
+
+type KnightPos = (Int, Int)
+
+moveKnight :: KnightPos -> [KnightPos]
+moveKnight (c, r) = do
+    (c', r') <- [ (c + 2, r - 1), (c + 2, r + 1), (c - 2, r - 1), (c - 2, r + 1)
+                , (c + 1, r - 2), (c + 1, r + 2), (c - 1, r - 2), (c - 1, r + 2)
+                ]
+    guard (c' `elem` [ 1 .. 8 ] && r' `elem` [ 1 .. 8 ])
+    return (c', r')
+
+in3 :: KnightPos -> [KnightPos]
+in3 start = return start >>= moveKnight >>= moveKnight >>= moveKnight
+
+canReachIn3 :: KnightPos -> KnightPos -> Bool
+canReachIn3 start end = end `elem` in3 start
+
+main _ = do
+
+    println $ [ 3, 4, 5 ] >>= \x -> [ x, -x ]
+
+    println $ [] >>= \x -> [ "bad", "mad", "rad" ]
+    println $ [ 1, 2, 3 ] >>= \x -> ([] :: [Int])
+
+    println $ [ 1, 2 ] >>= \n -> [ 'a', 'b' ] >>= \ch -> return (n, ch)
+    println $ [ (n,ch) | n <- [ 1, 2 ], ch <- [ 'a', 'b' ] ]
+
+    println $ [ x | x <- [ 1 .. 50 ], '7' `elem` (toList . show) x ]
+
+    println $ (guard (5 > 2) :: Maybe ())
+    println $ (guard (1 > 2) :: Maybe ())
+    println $ (guard (5 > 2) :: [()])
+
+    println $ (guard (5 > 2) >> return "cool" :: [String])
+    println $ (guard (1 > 2) >> return "cool" :: [String])
+
+    println $ moveKnight (6, 2)
+    println $ moveKnight (8, 1)
+
+    println $ (6, 2) `canReachIn3` (6, 1)
+    println $ (6, 2) `canReachIn3` (7, 3)
