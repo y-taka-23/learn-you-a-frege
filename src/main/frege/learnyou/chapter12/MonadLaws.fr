@@ -1,0 +1,27 @@
+module learnyou.chapter12.MonadLaws where
+
+import learnyou.chapter12.WalkTheLine ( landLeft, landRight )
+
+main _ = do
+
+    println $ return 3 >>= (\x -> Just (x + 100000))
+    println $ (\x -> Just (x + 100000)) 3
+
+    println $ return "WoM" >>= (\x -> [ x, x, x ])
+    println $ (\x -> [ x, x, x ]) "WoM"
+
+    println $ Just "move on up" >>= (\x -> return x)
+    println $ [ 1, 2, 3, 4 ] >>= (\x -> return x)
+    putStrLn "Wah!" >>= (\x -> return x)
+
+    println $ ((return (0, 0) >>= landRight 2) >>= landLeft 2) >>= landRight 2
+    println $
+        return (0, 0) >>= (\x ->
+        landRight 2 x >>= (\y ->
+        landLeft  2 y >>= (\z ->
+        landRight 2 z)))
+
+    let f x = [ x, -x ]
+    let g x = [ x * 3, x * 2 ]
+    let h = f <=< g
+    println $ h 3
