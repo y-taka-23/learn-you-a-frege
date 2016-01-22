@@ -1,0 +1,138 @@
+module learnyou.chapter13.WriterIHardlyKnowHer where
+
+import frege.data.Monoid
+import frege.data.wrapper.Num
+
+isBigGang :: Int -> (Bool, String)
+isBigGang x = (x > 9, "Compared gang size to 9.")
+
+applyLog' :: (a, String) -> (a -> (b, String)) -> (b, String)
+applyLog' (x, log) f =
+    let (y, newLog) = f x
+    in  (y, log ++ newLog)
+
+applyLog :: (Monoid m) => (a, m) -> (a -> (b, m)) -> (b, m)
+applyLog (x, log) f =
+    let (y, newLog) = f x
+    in  (y, log `mappend` newLog)
+
+type Food = String
+type Price = Sum Int
+
+addDrink :: Food -> (Food, Price)
+addDrink "beans" = ("milk", Sum 25)
+addDrink "jerky" = ("whiskey", Sum 99)
+addDrink _       = ("beer", Sum 30)
+
+-- Frege's Writer is mapped to java.io.Writer
+data MyWriter w a = MyWriter { runWriter :: (a, w) }
+
+instance (Monoid w) => Monad (MyWriter w) where
+    return x = MyWriter (x, mempty)
+    (MyWriter (x, v)) >>= f =
+        let (MyWriter (y, v')) = f x
+        in  MyWriter (y, v `mappend` v')
+
+logNumber :: Int -> MyWriter [String] Int
+logNumber x = MyWriter (x, ["Got number: " ++ show x])
+
+tell :: w -> MyWriter w ()
+tell v = MyWriter ((), v)
+
+multWithLog :: MyWriter [String] Int
+multWithLog = do
+    a <- logNumber 3
+    b <- logNumber 5
+    tell ["Gonna multiply these two"]
+    return (a * b)
+
+gcd' :: Int -> Int -> MyWriter [String] Int
+gcd' a b
+    | b == 0 = do
+        tell ["Finished with " ++ show a]
+        return a
+    | otherwise = do
+        tell [show a ++ " mod " ++ show b ++ " = " ++ show (a `mod` b)]
+        gcd' b (a `mod` b)
+
+gcdReverse :: Int -> Int -> MyWriter [String] Int
+gcdReverse a b
+    | b == 0 = do
+        tell ["Finished with " ++ show a]
+        return a
+    | otherwise = do
+        result <- gcdReverse b (a `mod` b)
+        tell [show a ++ " mod " ++ show b ++ " = " ++ show (a `mod` b)]
+        return result
+
+data DiffList a = DiffList { getDiffList :: [a] -> [a] }
+
+toDiffList :: [a] -> DiffList a
+toDiffList xs = DiffList (xs ++)
+
+fromDiffList :: DiffList a -> [a]
+fromDiffList (DiffList f) = f []
+
+instance Monoid (DiffList a) where
+    mempty                              = DiffList (\xs -> [] ++ xs)
+    (DiffList f) `mappend` (DiffList g) = DiffList (\xs -> f (g xs))
+
+gcdReverse' :: Int -> Int -> MyWriter (DiffList String) Int
+gcdReverse' a b
+    | b == 0 = do
+        tell (toDiffList ["Finished with " ++ show a])
+        return a
+    | otherwise = do
+        result <- gcdReverse' b (a `mod` b)
+        tell (toDiffList [show a ++ " mod " ++ show b ++ " = " ++ show (a `mod` b)])
+        return result
+
+finalCountDown1 :: Int -> MyWriter (DiffList String) ()
+finalCountDown1 0 = do
+    tell (toDiffList ["0"])
+finalCountDown1 x = do
+    finalCountDown1 (x - 1)
+    tell (toDiffList [show x])
+
+finalCountDown2 :: Int -> MyWriter [String] ()
+finalCountDown2 0 = do
+    tell ["0"]
+finalCountDown2 x = do
+    finalCountDown2 (x - 1)
+    tell [show x]
+
+main _ = do
+
+    println $ isBigGang 3
+    println $ isBigGang 30
+
+    println $ (3, "Smallish gang.") `applyLog'` isBigGang
+    println $ (30, "A freaking platoon.") `applyLog'` isBigGang
+
+    println $ ("Tobin", "Got outlaw name.") `applyLog'` (\x -> (length x, "Applied length."))
+    println $ ("Bathcat", "Got outlaw name.") `applyLog'` (\x -> (length x, "Applied length"))
+
+    println $ ("beans", Sum 10) `applyLog` addDrink
+    println $ ("jerky", Sum 25) `applyLog` addDrink
+    println $ ("dogmeat", Sum 5) `applyLog` addDrink
+
+    println $ (("dogmeat", Sum 5) `applyLog` addDrink) `applyLog` addDrink
+
+    println ((return 3 :: MyWriter String Int).runWriter :: (Int, String))
+    println ((return 3 :: MyWriter (Sum Int) Int).runWriter :: (Int, Sum Int))
+    println ((return 3 :: MyWriter (Product Int) Int).runWriter :: (Int, Product Int))
+
+    println multWithLog.runWriter
+
+    println $ fst (gcd' 8 3).runWriter
+
+    mapM_ putStrLn $ snd (gcd' 8 3).runWriter
+    mapM_ putStrLn $ snd (gcdReverse 8 3).runWriter
+
+    println $ fromDiffList (toDiffList [ 1, 2, 3, 4 ] `mappend` toDiffList [ 1, 2, 3 ])
+
+    mapM_ putStrLn . fromDiffList . snd $ (gcdReverse' 110 34).runWriter
+
+    -- java.lang.StackOverflowError!
+--    mapM_ putStrLn . fromDiffList . snd $ (finalCountDown1 500000).runWriter
+--    mapM_ putStrLn . snd $ (finalCountDown2 500000).runWriter
