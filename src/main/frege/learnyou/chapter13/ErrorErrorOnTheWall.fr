@@ -1,0 +1,6 @@
+module learnyou.chapter13.ErrorErrorOnTheWall where
+
+main _ = do
+    println $ Left "boom" >>= \x -> return (x + 1)
+    println $ (Right 100 >>= \x -> Left "no way!" :: Either String Int)
+    println $ (Right 3 >>= \x -> return (x + 100) :: Either String Int)
