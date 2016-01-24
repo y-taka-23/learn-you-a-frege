@@ -1,0 +1,71 @@
+module learnyou.chapter13.MakingMonads where
+
+data Rational = Rational Int Int
+
+private reduce :: Rational -> Rational
+private reduce (Rational x y) = Rational (x `div` g) (y `div` g)
+    where g = gcd x y
+
+instance Show Rational where
+    show (Rational x y) = show x ++ " % " ++ show y
+
+infixr 7 `%`
+(%) :: Int -> Int -> Rational
+x % y = reduce $ Rational x y
+
+infixl 6 `+.`
+(+.) :: Rational -> Rational -> Rational
+(Rational x1 y1) +. (Rational x2 y2) = (x1 * y2 + x2 * y1) % (y1 * y2)
+
+infixl 7 `*.`
+(*.) :: Rational -> Rational -> Rational
+(Rational x1 y1) *. (Rational x2 y2) = (x1 * x2) % (y1 * y2)
+
+data Prob a = Prob { getProb :: [(a, Rational)] }
+derive Show (Prob a)
+
+instance Functor Prob where
+    fmap f (Prob xs) = Prob $ map (\(x, p) -> (f x, p)) xs
+
+thisSituation :: Prob (Prob Char)
+thisSituation = Prob
+    [ (Prob [ ('a', 1 % 2), ('b', 1 % 2) ], 1 % 4)
+    , (Prob [ ('c', 1 % 2), ('d', 1 % 2) ], 3 % 4)
+    ]
+
+flatten :: Prob (Prob a) -> Prob a
+flatten (Prob xs) = Prob $ concat $ map multAll xs
+    where multAll (Prob innerxs, p) = map (\(x, r) -> (x, r *. p)) innerxs
+
+instance Monad Prob where
+    return x = Prob [(x, 1 % 1)]
+    m >>= f  = flatten (fmap f m)
+
+data Coin = Heads | Tails
+derive Eq   Coin
+derive Show Coin
+
+coin :: Prob Coin
+coin = Prob [(Heads, 1 % 2), (Tails, 1 % 2)]
+
+loadedCoin :: Prob Coin
+loadedCoin = Prob [(Heads, 1 % 10), (Tails, 9 % 10)]
+
+flipThree :: Prob Bool
+flipThree = do
+    a <- coin
+    b <- coin
+    c <- loadedCoin
+    return (all (== Tails) [a, b, c])
+
+main _ = do
+
+    println $ 1 % 4
+    println $ 1 % 2 +. 1 % 2
+    println $ 1 % 3 +. 5 % 4
+
+    println [ (3, 1 % 2), (5, 1 % 4), (9, 1 % 4) ]
+
+    println $ fmap negate $ Prob [ (3, 1 % 2), (5, 1 % 4), (9, 1 % 4) ]
+
+    println flipThree.getProb
