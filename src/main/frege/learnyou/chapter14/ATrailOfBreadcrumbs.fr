@@ -1,0 +1,63 @@
+module learnyou.chapter14.ATrailOfBreadcrumbs where
+
+import learnyou.chapter14.TakingAWalk ( Tree, Direction, freeTree )
+
+type Breadcrumbs' = [Direction]
+
+goLeft' :: (Tree a, Breadcrumbs') -> (Tree a, Breadcrumbs')
+goLeft' (Empty, ds)      = (Empty, ds)
+goLeft' (Node _ l _, bs) = (l, L : bs)
+
+goRight' :: (Tree a, Breadcrumbs') -> (Tree a, Breadcrumbs')
+goRight' (Empty, ds)      = (Empty, ds)
+goRight' (Node _ _ r, bs) = (r, R : bs)
+
+infixl 7 `-:`
+(-:) :: a -> (a -> b) -> b
+x -: f = f x
+
+data Crumb a =
+      LeftCrumb  a (Tree a)
+    | RightCrumb a (Tree a)
+derive Show (Crumb a)
+
+type Breadcrumbs a = [Crumb a]
+
+goLeft :: (Tree a, Breadcrumbs a) -> (Tree a, Breadcrumbs a)
+goLeft (Empty, ds)      = (Empty, ds)
+goLeft (Node x l r, bs) = (l, LeftCrumb x r : bs)
+
+goRight :: (Tree a, Breadcrumbs a) -> (Tree a, Breadcrumbs a)
+goRight (Empty, ds)      = (Empty, ds)
+goRight (Node x l r, bs) = (r, RightCrumb x l : bs)
+
+goUp :: (Tree a, Breadcrumbs a) -> (Tree a, Breadcrumbs a)
+goUp (t, [])                  = (t, [])
+goUp (t, LeftCrumb  x r : bs) = (Node x t r, bs)
+goUp (t, RightCrumb x l : bs) = (Node x l t, bs)
+
+type Zipper a = (Tree a, Breadcrumbs a)
+
+modify :: (a -> a) -> Zipper a -> Zipper a
+modify f (Node x l r, bs) = (Node (f x) l r, bs)
+modify f (Empty, bs)      = (Empty, bs)
+
+--newFocus = modify (\_ -> 'P') (goRight (goLeft (freeTree,[])))
+newFocus = (freeTree,[]) -: goLeft -: goRight -: modify (\_ -> 'P')
+
+--newFocus2 = modify (\_ -> 'X') (goUp newFocus)
+newFocus2 = newFocus -: goUp -: modify (\_ -> 'X')
+
+attach :: Tree a -> Zipper a -> Zipper a
+attach t (_, bs) = (t, bs)
+
+farLeft = (freeTree,[]) -: goLeft -: goLeft -: goLeft -: goLeft
+newFocus3 = farLeft -: attach (Node 'Z' Empty Empty)
+
+topMost :: Zipper a -> Zipper a
+topMost (t, []) = (t, [])
+topMost z       = topMost (goUp z)
+
+main _ = do
+    println $ goLeft' (goRight' (freeTree, []))
+    println $ (freeTree, []) -: goRight' -: goLeft'
