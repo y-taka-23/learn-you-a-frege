@@ -1,0 +1,18 @@
+module learnyou.chapter14.FocusingOnLists where
+
+type ListZipper a = ([a], [a])
+
+goForward :: ListZipper a -> ListZipper a
+goForward ([], bs)     = ([], bs)
+goForward (x : xs, bs) = (xs, x : bs)
+
+goBack :: ListZipper a -> ListZipper a
+goBack (xs, [])     = (xs, [])
+goBack (xs, b : bs) = (b : xs, bs)
+
+main _ = do
+    let xs = [ 1, 2, 3, 4 ]
+    println $ goForward (xs, [])
+    println $ goForward ([ 2, 3, 4 ], [ 1 ])
+    println $ goForward ([ 3, 4 ], [ 2, 1 ])
+    println $ goBack ([ 4 ], [ 3, 2, 1 ])
