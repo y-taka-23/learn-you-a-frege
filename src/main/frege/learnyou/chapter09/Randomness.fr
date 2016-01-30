@@ -1,0 +1,63 @@
+module learnyou.chapter09.Randomness where
+
+import frege.system.Random
+
+threeCoins :: StdGen -> (Bool, Bool, Bool)
+threeCoins gen =
+    let (firstCoin, newGen)   = random gen
+        (secondCoin, newGen') = random newGen
+        (thirdCoin, newGen'') = random newGen'
+    in  (firstCoin, secondCoin, thirdCoin)
+
+finiteRandoms :: (Random r, RandomGen g) => Int -> g -> ([r], g)
+finiteRandoms 0 gen = ([], gen)
+finiteRandoms n gen =
+    let (value, newGen) = random gen
+        (restOfList, finalGen) = finiteRandoms (n - 1) newGen
+    in  (value : restOfList, finalGen)
+
+askForNumber :: StdGen -> IO ()
+askForNumber gen = do
+    let (randNumber, newGen) = randomR (1, 10) gen :: (Int, StdGen)
+    print "Which number in the range from 1 to 10 am I thinking of? "
+    numberString <- getLine
+    when (not $ null numberString) $ do
+        let number = atoi numberString
+        if randNumber == number
+            then println "You are correct!"
+            else println $ "Sorry, it was " ++ show randNumber
+        askForNumber newGen
+
+main _ = do
+
+    -- StdGen is not an instance of Show in Frege
+    println $ fst (random (mkStdGen 100) :: (Int, StdGen))
+    println $ fst (random (mkStdGen 100) :: (Int, StdGen))
+    println $ fst (random (mkStdGen 949494) :: (Int, StdGen))
+
+    println $ fst (random (mkStdGen 949488) :: (Float, StdGen))
+    println $ fst (random (mkStdGen 949488) :: (Bool, StdGen))
+    println $ fst (random (mkStdGen 949488) :: (Integer, StdGen))
+
+    println $ threeCoins (mkStdGen 21)
+    println $ threeCoins (mkStdGen 22)
+    println $ threeCoins (mkStdGen 943)
+    println $ threeCoins (mkStdGen 944)
+
+    println $ take 5 (randoms (mkStdGen 11) :: [Int])
+    println $ take 5 (randoms (mkStdGen 11) :: [Bool])
+    println $ take 5 (randoms (mkStdGen 11) :: [Float])
+
+    println $ fst $ randomR (1, 6) (mkStdGen 359353)
+    println $ fst $ randomR (1, 6) (mkStdGen 35935335)
+
+    -- Char is not an instance of Random.Random
+    println $ packed $ take 10 $ map chr $ randomRs (97, 122) (mkStdGen 3)
+
+    -- In Frege, getStdGen returns different values on each invocations
+    gen <- getStdGen
+    println $ packed $ take 20 $ map chr $ randomRs (97, 122) gen
+    gen2 <- getStdGen
+    println $ packed $ take 20 $ map chr $ randomRs (97, 122) gen2
+    gen3 <- getStdGen
+    println $ packed $ take 20 $ map chr $ randomRs (97, 122) gen3
