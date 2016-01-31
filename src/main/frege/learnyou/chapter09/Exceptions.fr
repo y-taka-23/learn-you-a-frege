@@ -1,0 +1,43 @@
+module learnyou.chapter09.Exceptions where
+
+showLineCount :: String -> String
+showLineCount contents =
+    "The file has " ++ (show . length . lines $ contents) ++ " lines!"
+
+lineCount1 :: [String] -> IO ()
+lineCount1 [] = do
+    println "input a filename."
+lineCount1 (fileName : _) = do
+    contents <- readFile fileName
+    println $ showLineCount contents
+
+lineCount2 :: [String] -> IO ()
+lineCount2 [] = do
+    println "input a filename."
+lineCount2 (fileName : _) = do
+    file       <- File.new fileName
+    fileExists <- file.exists
+    if fileExists
+        then do
+            contents <- readFile fileName
+            println $ showLineCount contents
+        else do
+            println $ "The file doesn't exist!"
+
+-- Frege doesn't have exceptions equivalent to "isFullError" nor "isIllegalOperation"
+lineCount3 :: [String] -> IO ()
+lineCount3 [] = do
+    println "input a filename."
+lineCount3 (fileName : _) = do
+    try (\fn -> readFile fn >>= println . showLineCount) fileName
+        `catch` (\(fne :: FileNotFoundException) -> println "The file doesn't exist!")
+        `catch` (\(ioe :: IOException)           -> throwIO ioe)
+
+-- Frege doesn't have exceptions eequivalent to "ioeGetFileName"
+lineCount4:: [String] -> IO ()
+lineCount4 [] = do
+    println "input a filename."
+lineCount4 (fileName : _) = do
+    try (\fn -> readFile fn >>= println . showLineCount) fileName
+        `catch` (\(fne :: FileNotFoundException) -> println fne.getMessage)
+        `catch` (\(ioe :: IOException)           -> throwIO ioe)
