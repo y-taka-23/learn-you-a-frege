@@ -1,0 +1,89 @@
+module learnyou.chapter09.HelloWorld where
+
+import frege.data.Char ( toUpper )
+
+reverseWords :: String -> String
+reverseWords = unwords . map (packed . reverse . unpacked) . words
+
+example1 :: IO ()
+example1 = do
+    putStrLn "What's your first name?"
+    firstName <- getLine
+    putStrLn "What's your last name?"
+    lastName <- getLine
+    let bigFirstName = packed . map toUpper . unpacked $ firstName
+        bigLastName  = packed . map toUpper . unpacked $ lastName
+    putStrLn $ "hey " ++ bigFirstName ++ " " ++ bigLastName ++ ", how are you?"
+
+example2 :: IO ()
+example2 = do
+    line <- getLine
+    if null line
+        then return ()
+        else do
+            putStrLn $ reverseWords line
+            example2
+
+example3 :: IO ()
+example3 = do
+    let a = "hell"
+        b = "year"
+    putStrLn $ a ++ " " ++ b
+
+example4 :: IO ()
+example4 = do
+    c <- getChar
+    if c != ' '
+        then do
+            putChar c
+            example4
+        else return ()
+
+example5 :: IO ()
+example5 = do
+    c <- getChar
+    when (c != ' ') $ do
+        putChar c
+        example5
+
+example6 :: IO ()
+example6 = do
+    xs <- sequence [ getLine, getLine, getLine ]
+    print xs
+
+example7 :: IO ()
+example7 = forever $ do
+    putStr "Give me some input: "
+    l <- getLine
+    putStrLn $ packed . map toUpper . unpacked $ l
+
+example8 :: IO [()]
+example8 = do
+    colors <- forM [ 1, 2, 3, 4 ] $ \a -> do
+        putStrLn $ "Which color do you associate with the number " ++ show a ++ "?"
+        color <- getLine
+        return "foo"
+    putStrLn "The colors that you associate with 1, 2, 3 and 4 are: "
+    mapM putStrLn colors
+
+main _ = do
+
+    putStr "Hey, "
+    putStr "I'm "
+    putStrLn "Andy!"
+
+    putChar 't'
+    putChar 'e'
+    putChar 'h'
+    putChar '\n'
+
+    println true
+    println 2
+    println "haha"
+    println 3.2
+    println [ 3, 4, 3 ]
+
+    sequence $ map println [ 1, 2, 3, 4, 5 ]
+
+    mapM println [ 1, 2, 3 ]
+    mapM_ println [ 1, 2, 3 ]
