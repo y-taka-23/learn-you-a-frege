@@ -1,0 +1,94 @@
+module learnyou.chapter09.FilesAndStreams where
+
+import frege.data.Char ( toUpper )
+import frege.data.List ( delete, !! )
+import frege.java.Util ( Scanner )
+
+example1 :: IO ()
+example1 = do
+    contents <- getContents
+    putStrLn $ packed . map toUpper . unpacked $ contents
+
+shortLinesOnly :: String -> String
+shortLinesOnly input =
+    let allLines = lines input
+        shortLines = filter (\line -> length line < 10) allLines
+        result = unlines shortLines
+    in  result
+
+example2 :: IO ()
+example2 = do
+    contents <- getContents
+    putStrLn (shortLinesOnly contents)
+
+example3 :: IO ()
+example3 = interact $ unlines . filter ((< 10) . length) . lines
+
+respondPalindromes = unlines . map tellPalindrome . lines
+    where tellPalindrome xs = if isPalindrome xs then "palindrome" else "not a palindrome"
+          isPalindrome xs = xs == (packed . reverse . unpacked) xs
+
+example4 :: IO ()
+example4 = interact respondPalindromes
+
+example5 :: IO ()
+example5 = do
+    sc       <- File.new "girlfriend.txt" >>= Scanner.new
+    contents <- sc.useDelimiter ´\uEdda$´ >>= Scanner.next
+    println contents
+    sc.close
+
+example6 :: IO ()
+example6 = do
+    contents <- readFile "girlfriend.txt"
+    println contents
+
+example7 :: IO ()
+example7 = do
+    contents <- readFile "girlfriend.txt"
+    writeFile "girlfriendcaps.txt" $ packed . map toUpper . unpacked $ contents
+
+example8 :: IO ()
+example8 = do
+    todoItem <- getLine
+    appendFile "todo.txt" (todoItem ++ "\n")
+
+-- BufferedReader with a buffer size
+data SizedBufferedReader = mutable native java.io.BufferedReader where
+    native new :: Reader -> Int -> IO BufferedReader
+
+    getLines :: SizedBufferedReader -> IO [String]
+    getLines br = go [] where
+        go acc = do
+            xms <- br.readLine
+            case xms of
+                Just s -> go (s : acc)
+                _      -> br.close >> return (reverse acc)
+
+example9 :: IO ()
+example9 = do
+    fis <- FileInputStream.new "girlfriend.txt"
+    isr <- InputStreamReader.new fis "UTF-8"
+    sbr <- SizedBufferedReader.new isr 2048
+    sbr.getLines >>= mapM_ println
+
+main _ = do
+
+    contents <- readFile "todo.txt"
+    let todoTasks     = lines contents
+        numberedTasks = zipWith (\n \line -> show n ++ " - " ++ line) [0..] todoTasks
+
+    println "These are your TO-DO items:"
+    println $ unlines numberedTasks
+    println "Which one do you want to delete?"
+
+    numberString <- getLine
+    let number       = atoi numberString
+        newTodoTasks = delete (todoTasks !! number) todoTasks
+
+    tempName <- File.createTempFile "temp" "" >>= (\f -> f.getName)
+    writeFile tempName $ unlines newTodoTasks
+
+    old <- File.new tempName
+    new <- File.new "todo.txt"
+    old.renameTo new >> return ()
