@@ -3,6 +3,6 @@ env:
     global:
     - GRADLE_OPTS="-Xmx1024m -Xms256m -XX:MaxPermSize=256m -XX:PermSize=256m"
 before_script:
-- sudo service postgresql stop || true
-- sudo service mysql stop || true
+- sudo service postgresql stop
+- sudo service mysql stop
 script: ./gradlew --stacktrace compileFrege
