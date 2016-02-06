@@ -1,0 +1,48 @@
+module learnyou.chapter09.CommandLineArguments where
+
+import frege.data.List ( lookup, delete, !! )
+
+-- Note: frege.system.Environment does not work well.
+
+dispatch :: [(String, [String] -> IO ())]
+dispatch =
+    [ ("add", add)
+    , ("view", view)
+    , ("remove", remove)
+    ]
+
+showUsage :: IO ()
+showUsage = stderr.println "usege: todo (add | view | remove) FILE [task]"
+
+main [] = showUsage
+main (command : args) = do
+    let mAction = lookup command dispatch
+    case mAction of
+        Just action = action args
+        Nothing     = showUsage
+
+add :: [String] -> IO ()
+add [fileName, todoItem] = do
+    appendFile fileName (todoItem ++ lineSeparator)
+add _ = showUsage
+
+view :: [String] -> IO ()
+view [fileName] = do
+    contents <- readFile fileName
+    let todoItems     = lines contents
+        numberedItems = zipWith (\n \line -> show n ++ " - " ++ line) [0..] todoItems
+    println $ unlines numberedItems
+view _ = showUsage
+
+remove :: [String] -> IO ()
+remove [fileName, numberString] = do
+    contents <- readFile fileName
+    let number       = atoi numberString
+        todoItems    = lines contents
+        newTodoItems = delete (todoItems !! number) todoItems
+    tempName <- File.createTempFile "temp" "" >>= (\f -> f.getName)
+    writeFile tempName $ unlines newTodoItems
+    old <- File.new tempName
+    new <- File.new fileName
+    old.renameTo new >> return ()
+remove _ = showUsage
