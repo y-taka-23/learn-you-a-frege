@@ -1,0 +1,111 @@
+module learnyou.chapter13.SomeUsefulMonadicFunctions where
+
+import frege.control.monad.State
+import frege.data.List
+import learnyou.chapter12.TheListMonad ( KnightPos, moveKnight )
+import learnyou.chapter13.TastefulStatefulComputations ( pop, push )
+import learnyou.chapter13.WriterIHardlyKnowHer ( MyWriter, tell )
+
+joinedMaybes :: Maybe Int
+joinedMaybes = do
+    m <- Just (Just 8)
+    m
+
+keepSmall :: Int -> MyWriter [String] Bool
+keepSmall x
+    | x < 4 = do
+        tell ["Keeping " ++ show x]
+        return true
+    | otherwise = do
+        tell [show x ++ " is too large, throwing it away"]
+        return false
+
+powerset :: [a] -> [[a]]
+powerset xs = filterM (\x -> [true, false]) xs
+
+binSmalls :: Int -> Int -> Maybe Int
+binSmalls acc x
+    | x > 9     = Nothing
+    | otherwise = Just (acc + x)
+
+readMaybe :: String -> Maybe Double
+readMaybe st =
+    case st.double of
+        Right x -> Just x
+        Left  _ -> Nothing
+
+foldingFunction :: [Double] -> String -> Maybe [Double]
+foldingFunction (x : y : ys) "*" = return ((y * x) : ys)
+foldingFunction (x : y : ys) "+" = return ((y + x) : ys)
+foldingFunction (x : y : ys) "+" = return ((y - x) : ys)
+foldingFunction xs numberString  = liftM (: xs) (readMaybe numberString)
+
+solveRPN :: String -> Maybe Double
+solveRPN st = do
+    [result] <- foldM foldingFunction [] (words st)
+    return result
+
+inMany :: Int -> KnightPos -> [KnightPos]
+inMany x start = return start >>= fold (<=<) return (replicate x moveKnight)
+
+canReachIn :: Int -> KnightPos -> KnightPos -> Bool
+canReachIn x start end = end `elem` inMany x start
+
+main _ = do
+
+    println $ liftM (* 3) (Just 8)
+    println $ fmap (* 3) (Just 8)
+    println $ (liftM not $ MyWriter (true, "chickpeas") :: MyWriter String Bool).runWriter
+    println $ (fmap not $ MyWriter (true, "chickpeas") :: MyWriter String Bool).runWriter
+    println $ (liftM (+ 100) pop).run [ 1, 2, 3, 4 ]
+    println $ (fmap (+ 100) pop).run [ 1, 2, 3, 4 ]
+
+    println $ Just (+ 3) <*> Just 4
+    println $ Just (+ 3) `ap` Just 4
+    println $ [ (+ 1), (+ 2), (+ 3) ] <*> [ 10, 11 ]
+    println $ [ (+ 1), (+ 2), (+ 3) ] `ap` [ 10, 11 ]
+
+    println $ join (Just (Just 9))
+    println $ (join (Just Nothing) :: Maybe Int)
+    println $ (join Nothing :: Maybe Int)
+
+    println $ join [ [ 1, 2, 3 ], [ 4, 5, 6 ] ]
+    println $ (join $ MyWriter (MyWriter (1, "aaa"), "bbb") :: MyWriter String Int).runWriter
+
+    println (join (Right (Right 9)) :: Either String Int)
+    println (join (Right (Left "error")) :: Either String Int)
+    println (join (Left "error") :: Either String Int)
+
+    let nestedState = State.get >>= (\s -> State.put (1 : 2 : s)) >> return (push 10)
+    println $ (join nestedState).run [ 0, 0, 0 ]
+
+    println $ fst (filterM keepSmall [ 9, 1, 5, 2, 10, 3 ]).runWriter
+
+    mapM_ putStrLn $ snd (filterM keepSmall [ 9, 1, 5, 2, 10, 3 ]).runWriter
+
+    println $ powerset [ 1, 2, 3 ]
+
+    println $ foldM binSmalls 0 [ 2, 8, 3, 1 ]
+    println $ foldM binSmalls 0 [ 2, 11, 3, 1 ]
+
+    println $ readMaybe "1"
+    println $ readMaybe "GO TO HELL"
+
+    println $ foldingFunction [3, 2] "*"
+    println $ foldingFunction [3, 2] "-"
+    println $ foldingFunction [] "*"
+    println $ foldingFunction [] "1"
+    println $ foldingFunction [] "1 wawawawa"
+
+    println $ solveRPN "1 2 * 4 +"
+    println $ solveRPN "1 2 * 4 + 5 *"
+    println $ solveRPN "1 2 * 4"
+    println $ solveRPN "1 8 wharglbllargh"
+
+    let f = (+ 1) . (* 100)
+    println $ f 4
+    let g = (\x -> return (x + 1)) <=< (\x -> return (x * 100))
+    println $ Just 4 >>= g
+
+    let f = foldr (.) id [ (+ 1), (* 100), (+ 1) ]
+    println $ f 1
