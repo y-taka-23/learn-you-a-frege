@@ -2,16 +2,6 @@ module learnyou.chapter10.ReversePolishNotationCalculator where
 
 import frege.prelude.Math ( **, log )
 
-class Read a where
-    read :: String -> a
-
-instance Read Double where
-    read str = intPart + fracPart
-        where (intList, fracList) = break (== '.') . unpacked $ str
-              intPart  = fromInt . atoi . packed $ intList
-              fracStr  = if null fracList then "0" else (packed . tail) fracList
-              fracPart = (fromInt . atoi $ fracStr) / 10 ^ (length fracStr)
-
 solveRPN :: String -> Double
 solveRPN = head . fold foldFunction [] . words
     where foldFunction (x : y : ys) "*" = (y * x) : ys
@@ -21,7 +11,10 @@ solveRPN = head . fold foldFunction [] . words
           foldFunction (x : y : ys) "^" = (y ** x) : ys
           foldFunction (x : xs) "ln"    = (log x) : xs
           foldFunction xs "sum"         = [sum xs]
-          foldFunction xs numberString  = read numberString : xs
+          foldFunction xs numberString  =
+              case numberString.double of
+                  Right x -> x : xs
+                  Left  _ -> error $ "cannot parse " ++ numberString ++ " into Double"
 
 main _ = do
 
